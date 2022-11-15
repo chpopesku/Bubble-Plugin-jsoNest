@@ -19,6 +19,10 @@
 
          // if there was trouble parsing 
          catch(err){
+             //Re-throw not-ready errors...
+    		if (err.message === 'not ready') {
+       			throw err;
+            }
             return { json : "{ \"error\" : \"configuration JSON is not valid" + " | " + err.message + "\"}"};
          }
 
@@ -74,6 +78,10 @@
 
          // If missing thing(s) or db lookup failed.   
          catch(err){
+            //Re-throw not-ready errors...
+    		if (err.message === 'not ready') {
+       			throw err;
+    		}
             log( "input uid error | " + err.message ) ;
             return { json : "{ \"error\" : \"problem loading UIDs of the thing\(s\) | output log: " + logText + " \" }" };
 
@@ -264,7 +272,11 @@
                            
                         }
                      }
-                        catch(err){ 
+                        catch(err){
+                           //Re-throw not-ready errors...
+                          if (err.message === 'not ready') {
+							throw err;
+    					  }
                            log ("error getting the IDs: " + id + " | " + err.message , depth );
                            depth--;
                            return id;
@@ -284,6 +296,10 @@
 
                      // return the ID string if there was an error
                      catch(err){
+                        //Re-throw not-ready errors...
+                        if (err.message === 'not ready') {
+                           throw err;
+                        }
                         log ("error getting the ID: " + id + " | " + err.message, depth );
                         depth--;
                         return id;
@@ -383,8 +399,22 @@
 
 
          //create JSON string from JS object                      ** indent property**
-         outputJSONString = JSON.stringify( outputObject, null, properties.indent ); 
+        // outputJSONString = JSON.stringify( outputObject, null, properties.indent ); 
 
+        var cache = [];
+        outputJSONString = JSON.stringify(outputObject, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            // Duplicate reference found, discard key
+            if (cache.includes(value)) return;
+
+            // Store value in our collection
+            cache.push(value);
+          }
+          return value;
+        }, properties.indent );
+        cache = null; //garbage collection
+
+             
          // wrap in array?
          if (properties.wrap_in_array === true) {
             outputJSONString = "[" + outputJSONString + "]";   
