@@ -22,8 +22,9 @@
              //Re-throw not-ready errors...
     		if (err.message === 'not ready') {
        			throw err;
+            } else {
+            	return { json : "{ \"error\" : \"configuration JSON is not valid" + " | " + err.message + "\"}"};
             }
-            return { json : "{ \"error\" : \"configuration JSON is not valid" + " | " + err.message + "\"}"};
          }
 
          // enforce recursion limit
@@ -61,7 +62,6 @@
                 uidInput = thingList.get( 0, thingList.length( ) ).map( ( x ) => { return x.get( "_id" ); } ) ;
                 log( 'found a list of things ' + uidInput );
 
-
             }
 
             // get SINGLE UID from thing
@@ -81,9 +81,10 @@
             //Re-throw not-ready errors...
     		if (err.message === 'not ready') {
        			throw err;
-    		}
-            log( "input uid error | " + err.message ) ;
-            return { json : "{ \"error\" : \"problem loading UIDs of the thing\(s\) | output log: " + logText + " \" }" };
+    		} else {
+            	log( "input uid error | " + err.message ) ;
+            	return { json : "{ \"error\" : \"problem loading UIDs of the thing\(s\) | output log: " + logText + " \" }" };
+            }
 
          }
 
@@ -276,10 +277,11 @@
                            //Re-throw not-ready errors...
                           if (err.message === 'not ready') {
 							throw err;
-    					  }
-                           log ("error getting the IDs: " + id + " | " + err.message , depth );
-                           depth--;
-                           return id;
+    					  } else {
+                           	log ("error getting the IDs: " + id + " | " + err.message , depth );
+                           	depth--;
+                           	return id;
+                          }
                      }
 
 
@@ -299,10 +301,11 @@
                         //Re-throw not-ready errors...
                         if (err.message === 'not ready') {
                            throw err;
+                        } else {
+                        	log ("error getting the ID: " + id + " | " + err.message, depth );
+                        	depth--;
+                        	return id;
                         }
-                        log ("error getting the ID: " + id + " | " + err.message, depth );
-                        depth--;
-                        return id;
                      }
 
                      //check that the object is defined, then call mapKeys()
